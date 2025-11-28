@@ -2,6 +2,7 @@
 #include<vector>
 #include<algorithm>
 #include<ctime>
+#include<windows.h>
 using namespace std;
 
 // Create Deck 
@@ -60,17 +61,17 @@ void playerTurn(vector<int> &deck, vector<int> &playerHand) {
     while(true) {
         cout << "Your Cards: ";
         for (int card : playerHand) cout << card << " ";
-        cout << " | Score: " << calcScore(playerHand) << endl;
-        cout << "Do you want to Hit (H) or Stand (S)? ";
+        cout << " | Total Score: " << calcScore(playerHand) << endl << endl;
+        cout << "Do you want to Hit (H) or Stand (S)? " << endl;
         cin >> choice; 
 
         if (choice == 'H' || choice == 'h') {
             playerHand.push_back(drawCard(deck));
 
-            if (calcScore(playerHand) > 21) {
-                cout << "\nYou Busted!\nReason: Total Exceed 21.";
-                break;
-            }
+            // if (calcScore(playerHand) > 21) {
+            //     cout << "\nYou Busted!\nReason: Total Exceed 21.";
+            //     break;
+            // }
         }
         else if ( choice == 'S' || choice == 's') {
             break;
@@ -82,12 +83,12 @@ void playerTurn(vector<int> &deck, vector<int> &playerHand) {
 }
 
 void dealerTurn(vector<int> &deck, vector<int> &dealerHand) {
-    cout << "\nDealer's Turn:\n";
-    cout << "Dealer Reveals Card: ";
+    cout << "\nDealer's Turn....\n";
+    cout << "\nDealer Reveals Card: ";
     for (int card : dealerHand) cout << card << " ";
     
     while (calcScore(dealerHand) < 17) {
-        cout << "\nDealer Hits....\n";
+        cout << "\n\nDealer Hits....\n";
         dealerHand.push_back(drawCard(deck));
     }
 
@@ -99,8 +100,9 @@ void dealerTurn(vector<int> &deck, vector<int> &dealerHand) {
 void checkWinner(vector<int> &playerHand, vector<int>dealerHand) {
     int playerScore = calcScore(playerHand);
     int dealerScore = calcScore(dealerHand);
-
-    cout << "\n-----------Final Scores------------";
+    cout << "==========================" << endl;
+    cout << "       Final Scores       " << endl;
+    cout << "==========================" << endl;
     cout << "\nYour Score: " << playerScore;
     cout << "\nDealer's Score: " << dealerScore << endl;    
     
@@ -128,7 +130,45 @@ void checkWinner(vector<int> &playerHand, vector<int>dealerHand) {
 
 int main() { 
     int i, j, f, playerTotal, dealerTotal;
+{
+    const int consoleWidth = 100; // adjust to your console width
+
+    string heading = R"(
+    
+  ____  _            _       _            _    
+ | __ )| | __ _  ___| | __  | | __ _  ___| | __
+ |  _ \| |/ _` |/ __| |/ /  | |/ _` |/ __| |/ /
+ | |_) | | (_| | (__|   < |_| | (_| | (__|   < 
+ |____/|_|\__,_|\___|_|\_\___/ \__,_|\___|_|\_\
+                                               
+    
+)";
+
+    string line;
+    size_t pos = 0, next;
+    while ((next = heading.find('\n', pos)) != string::npos) {
+        line = heading.substr(pos, next - pos);
+        int padding = (consoleWidth - line.length()) / 2;
+        if (padding < 0) padding = 0; // in case line is too long
+        cout << string(padding, ' ') << line << endl;
+        pos = next + 1;
+    }
+// int consoleWidth = 80; // Example width
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    // Set color to bright cyan for the first line
+    SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+    cout << string((consoleWidth - 24) / 2, ' ') << "Welcome to the Blackjack Game!\n\n";
+
+    // Set color to bright yellow for the second line
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+    cout << string((consoleWidth - 24) / 2, ' ') << "Created By Dawood and Aneed\n\n";
+
+    // Reset to default color
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
     srand(time(0));
+
+}
     char again = 'Y';
 
     while (again == 'Y' || again == 'y') {
@@ -144,7 +184,7 @@ int main() {
         dealerHand.push_back(drawCard(deck));
         dealerHand.push_back(drawCard(deck));
 
-        cout << "Dealer's Showing Card: " << dealerHand[0] << endl;
+        cout << "Dealer's Cards: " << dealerHand[0] << " hidden\n\n";
 
         playerTurn(deck, playerHand);
 
@@ -154,7 +194,7 @@ int main() {
 
         checkWinner(playerHand, dealerHand);
 
-        cout << "\nDo you want to play again? (Y/N): ";
+        cout << "\nDo you want to play again? (Y/N): \n\n";
         cin >> again;
     }
 
