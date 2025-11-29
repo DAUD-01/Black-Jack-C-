@@ -2,10 +2,14 @@
 #include<vector>
 #include<algorithm>
 #include<ctime>
+#include<random>
 #include<windows.h>
 using namespace std;
 
-// Create Deck 
+void setColor(int c)
+    {SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);}
+
+// Create Deck of cards, total 52 card. (2-10, J, Q, K, A) * 4 
 vector<int> makeDeck() {
     vector<int> deck;
     for (int i = 2; i<=10; i++) {
@@ -13,18 +17,16 @@ vector<int> makeDeck() {
             deck.push_back(i);
         }
     }
-    for  (int f = 0; f < 4; f++) deck.push_back(10);
-    for  (int f = 0; f < 4; f++) deck.push_back(10);
-    for  (int f = 0; f < 4; f++) deck.push_back(10);
-    // Above three are for J, Q, K ⬆
+    for  (int f = 0; f < 3 * 4; f++) deck.push_back(10); // For J, Q, K
+
     for  (int f = 0; f < 4; f++) deck.push_back(1); // Initially consider it as 1 then later on we'll setup logic for 11
     return deck;
 }
 
 // Shuffle Deck 
 
-void shuffleDeck(vector<int> &deck) {
-    random_shuffle(deck.begin(), deck.end());
+void shuffleDeck(vector<int> &deck) { // Here we use pass by reference, because we want to changee the original deck
+    shuffle(deck.begin(), deck.end(), default_random_engine(time(0))); 
 }
 
 // Draw Card
@@ -59,19 +61,28 @@ void playerTurn(vector<int> &deck, vector<int> &playerHand) {
     char choice;
 
     while(true) {
-        cout << "Your Cards: ";
+       setColor(10); 
+       Sleep(1000); cout << "Your Cards: ";
         for (int card : playerHand) cout << card << " ";
-        cout << " | Total Score: " << calcScore(playerHand) << endl << endl;
-        cout << "Do you want to Hit (H) or Stand (S)? " << endl;
+        cout << " | Total Score: " << calcScore(playerHand) << endl << endl; setColor(7);
+        setColor(11);
+        Sleep(0);
+        cout << "Do you want to Hit (H) or Stand (S)? ";
+        setColor(7);
         cin >> choice; 
+        setColor(8); cout << "\n--------------------------------------------\n\n"; setColor(7);
 
         if (choice == 'H' || choice == 'h') {
             playerHand.push_back(drawCard(deck));
 
-            // if (calcScore(playerHand) > 21) {
-            //     cout << "\nYou Busted!\nReason: Total Exceed 21.";
-            //     break;
-            // }
+            if (calcScore(playerHand) > 21) {
+               setColor(12); cout << "You Busted!\n\n"; setColor(7);
+                break;
+            }
+            if (calcScore(playerHand) == 21) {
+                cout << "You Hit Blackjack!\n\n";
+                break;
+            }
         }
         else if ( choice == 'S' || choice == 's') {
             break;
@@ -83,16 +94,20 @@ void playerTurn(vector<int> &deck, vector<int> &playerHand) {
 }
 
 void dealerTurn(vector<int> &deck, vector<int> &dealerHand) {
-    cout << "\nDealer's Turn....\n";
+    setColor(12);
+    Sleep(600); cout << "Dealer's Turn....\n"; setColor(7);
     cout << "\nDealer Reveals Card: ";
     for (int card : dealerHand) cout << card << " ";
     
     while (calcScore(dealerHand) < 17) {
-        cout << "\n\nDealer Hits....\n";
+        setColor(12);
+        cout << "\nDealer Hits...." << endl;
+        setColor(7);
         dealerHand.push_back(drawCard(deck));
     }
-
-    cout << "Dealer Total Score: " << calcScore(dealerHand) << endl;
+    Sleep(600);
+    cout << "\nDealer Total Score: " << calcScore(dealerHand);
+    cout << "\n\n";
 }
 
 // Check the Winner 
@@ -100,30 +115,38 @@ void dealerTurn(vector<int> &deck, vector<int> &dealerHand) {
 void checkWinner(vector<int> &playerHand, vector<int>dealerHand) {
     int playerScore = calcScore(playerHand);
     int dealerScore = calcScore(dealerHand);
-    cout << "==========================" << endl;
-    cout << "       Final Scores       " << endl;
-    cout << "==========================" << endl;
-    cout << "\nYour Score: " << playerScore;
-    cout << "\nDealer's Score: " << dealerScore << endl;    
+    setColor(8); 
+    Sleep(800);
+    cout << "============================================" << endl; setColor(7);
+                            setColor(10);
+    cout << "                 Final Scores               " << endl;
+                            setColor(7);
+    setColor(8);
+    cout << "============================================" << endl;
+    setColor(7);
+    cout << "\n> Your Score: " << playerScore;
+    cout << "\n> Dealer's Score: " << dealerScore << endl << endl;    
     
     int playerTotal = playerScore;
     int dealerTotal = dealerScore;
-
+    setColor(14);
+    Sleep(600);
     if (playerTotal > 21) {
-        cout << "You Busted! Dealer Wins!\nReason: Total Exceed 21.";
+        cout << "You Busted! Dealer Wins!\nReason: Total Exceed 21.\n";
     }
     else if (dealerTotal > 21) {
-        cout << "Dealer Busted! You Win!\nReason: Total Exceed 21.";
+        cout << "Dealer Busted! You Win!\nReason: Total Exceed 21.\n";
     }
     else if (playerTotal > dealerTotal) {
-        cout << "You Win!\nReason: Higher Total.";
+        cout << "You Win!\nReason: Higher Total.\n";
     }
     else if (dealerTotal > playerTotal) {
-        cout << "Dealer Wins!\nReason: Higher Total.";
+        cout << "Dealer Wins!\nReason: Higher Total.\n";
     }
     else {
-        cout << "It's a Tie!\nReason: Equal Total.";
+        cout << "It's a Tie!\nReason: Equal Total.\n";
     }
+    setColor(7);
 }
 
 // Main Fucntion 
@@ -153,7 +176,7 @@ int main() {
         cout << string(padding, ' ') << line << endl;
         pos = next + 1;
     }
-// int consoleWidth = 80; // Example width
+    // int consoleWidth = 80; 
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     // Set color to bright cyan for the first line
@@ -184,7 +207,9 @@ int main() {
         dealerHand.push_back(drawCard(deck));
         dealerHand.push_back(drawCard(deck));
 
-        cout << "Dealer's Cards: " << dealerHand[0] << " hidden\n\n";
+        setColor(12);
+         cout << "Dealer's Cards: " << dealerHand[0] << " and [hidden]\n\n";
+        setColor(7);
 
         playerTurn(deck, playerHand);
 
@@ -193,12 +218,14 @@ int main() {
         }
 
         checkWinner(playerHand, dealerHand);
-
-        cout << "\nDo you want to play again? (Y/N): \n\n";
+        setColor(11);
+        Sleep(600);
+        cout << "\nDo you want to play again? (Y/N): \n";
+        setColor(7);
         cin >> again;
     }
 
 
-    system("pause");
+    cin.ignore();
     return 0; 
 }
