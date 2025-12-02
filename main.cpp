@@ -3,7 +3,7 @@
 #include<algorithm>
 #include<ctime>
 #include<random>
-#include<windows.h>
+#include<windows>
 using namespace std;
 
 void setColor(int c)
