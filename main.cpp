@@ -37,7 +37,7 @@ int drawCard(vector<int> &deck) {
     return card;
 }
 
-// Calculate Player Score 
+// Calculate Score
 
 int calcScore(vector<int> hand) {
     int total = 0;
